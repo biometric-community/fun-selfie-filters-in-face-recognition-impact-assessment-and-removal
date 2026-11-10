@@ -35,17 +35,26 @@ def _device(cfg: dict, override: Optional[str] = None) -> torch.device:
     return torch.device(name)
 
 
+def equal_error_rate(scores: np.ndarray, labels: np.ndarray) -> float:
+    """Error rate at the threshold where the false match and false non-match rates meet."""
+    pos = np.sort(scores[labels == 1])
+    neg = np.sort(scores[labels == 0])
+    if len(pos) == 0 or len(neg) == 0:
+        return float("nan")
+    thresholds = np.unique(scores)
+    fnmr = np.searchsorted(pos, thresholds, side="left") / len(pos)
+    fmr = 1.0 - np.searchsorted(neg, thresholds, side="left") / len(neg)
+    i = int(np.argmin(np.abs(fmr - fnmr)))
+    return float(0.5 * (fmr[i] + fnmr[i]))
+
+
 def best_acc_eer(scores: np.ndarray, labels: np.ndarray) -> Tuple[float, float]:
     thresholds = np.linspace(scores.min(), scores.max(), 200)
     best_acc, best_eer = 0.0, 1.0
     for t in thresholds:
         pred = (scores >= t).astype(np.int32)
         best_acc = max(best_acc, float((pred == labels).mean()))
-        pos, neg = labels == 1, labels == 0
-        if pos.any() and neg.any():
-            fpr = float((pred[neg] == 1).mean())
-            fnr = float((pred[pos] == 0).mean())
-            best_eer = min(best_eer, 0.5 * (fpr + fnr))
+    best_eer = equal_error_rate(scores, labels)
     return best_acc, best_eer
 
 
