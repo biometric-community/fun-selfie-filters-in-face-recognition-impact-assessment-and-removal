@@ -1,0 +1,17 @@
+# Botezatu, Ibsen, Rathgeb & Busch, "Fun Selfie Filters in Face Recognition: Impact
+# Assessment and Removal", IEEE TBIOM 2023, arXiv:2202.06022.
+source: arXiv:2202.06022
+
+# Table IV: coverage intensity (Eq. 1) bands, as fractions.
+coverage_bands:
+  low: [0.0, 0.15]
+  medium: [0.15, 0.40]
+  high: [0.40, 1.0]
+
+# Table X: removal recovers 77% (ArcFace) and 88% (COTS) of the EER lost to high-coverage
+# filters (19.80 -> 4.50 and 18.20 -> 2.10 from a baseline of 0).
+removal_recovery_floor: 0.5
+
+# Table VII: both recognition systems have 0% EER on unfiltered images. LFW accuracy of
+# 90% is a loose floor for a working recogniser.
+clean_lfw_accuracy_floor: 90.0
